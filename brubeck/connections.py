@@ -171,6 +171,9 @@ class Mongrel2Connection(Connection):
 
             application.msg_conn.reply(request, http_content)
 
+        if request.should_close():
+            application.msg_conn.close(request)
+
     def recv(self):
         """Receives a raw mongrel2.handler.Request object that you from the
         zeromq socket and return whatever is found.
@@ -210,10 +213,10 @@ class Mongrel2Connection(Connection):
         """
         self.send(uuid, ' '.join(idents), data)
 
-    def close(self):
+    def close(self, req):
         """Tells mongrel2 to explicitly close the HTTP connection.
         """
-        pass
+        self.send(req.sender, req.conn_id, "")
 
     def close_bulk(self, uuid, idents):
         """Same as close but does it to a whole bunch of idents at a time.
