@@ -98,7 +98,13 @@ def load_zmq():
     if not hasattr(load_zmq, '_zmq'):
         from request_handling import CORO_LIBRARY
         if CORO_LIBRARY == 'gevent':
-            from gevent_zeromq import zmq
+            try:
+                import zmq.green as zmq
+            except ImportError:
+                try:
+                    from gevent_zeromq import zmq
+                except ImportError:
+                    raise EnvironmentError('You need to install pyzmq >= 2.2.0.2 or gevent_zmq.')
         elif CORO_LIBRARY == 'eventlet':
             from eventlet.green import zmq
         load_zmq._zmq = zmq
